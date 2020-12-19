@@ -38,12 +38,24 @@ then
 fi
 
 #vt insert <obj> <database.collection>
-#obj json türünde ama boşluk içermeyecek
+#obj json türünde ama boşluk içermeyecek ve id field ilk sırada olacak
 
 if [ $1 == 'insert' ]
 then
-    for (( i=2;i<=(($#-1));i++ ))
-    do
-        echo $i
-    done
+    IFS='.' read -ra ADDR <<< "${@:(($#))}"
+    if [ ${#ADDR[@]} -eq 2 ]
+    then
+        cd ${ADDR[0]}
+        cd ${ADDR[1]}
+        fields=${@:3:(($#-3))}
+        IFS=':' read -ra id <<< "${@:2:1}"
+        for field in $fields
+        do
+            IFS=':' read -ra add <<< "$field"
+            echo ${id[1]}:${add[1]} >> ${add[0]}.txt
+        done
+    else
+        echo 'Given Collection Not Found'
+    fi
+    
 fi
