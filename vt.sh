@@ -52,7 +52,27 @@ then
         for field in $fields
         do
             IFS=':' read -ra add <<< "$field"
-            echo ${id[1]}:${add[1]} >> ${add[0]}.txt
+            echo <${id[1]}>:<${add[1]}> >> ${add[0]}.txt
+        done
+    else
+        echo 'Given Collection Not Found'
+    fi
+    
+fi
+
+#vt findBy <fieldname1>=<value1> and | or <fieldname2>=<value1> ... <database.collection>
+
+if [ $1 == 'findBy' ]
+then
+    IFS='.' read -ra ADDR <<< "${@:(($#))}"
+    if [ ${#ADDR[@]} -eq 2 ]
+    then
+        cd ${ADDR[0]}
+        cd ${ADDR[1]}
+        fields=${@:2:(($#-2))}
+        for field in $fields
+        do
+            echo $field
         done
     else
         echo 'Given Collection Not Found'
