@@ -2,7 +2,6 @@
 
 #vt create db <dbname>
 #vt create col <collectionname> || <dbname.collectionname>
-
 if [ $1 == 'create' ]
 then
     if [ $2 == 'db' ]
@@ -33,7 +32,6 @@ then
         else
             echo 'Incorrect Collection Name or Command'
         fi
-        
     fi
 fi
 
@@ -41,7 +39,6 @@ fi
 
 #vt insert <obj> <database.collection>
 #obj json türünde ama boşluk içermeyecek ve id field ilk sırada olacak
-
 if [ $1 == 'insert' ]
 then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
@@ -58,15 +55,13 @@ then
         done
     else
         echo 'Given Collection Not Found'
-    fi
-    
+    fi 
 fi
 
 #vt findBy <fieldname1>=<value1> and | or <fieldname2>=<value1> ... <database.collection>
 if [ $1 == 'findBy' ]
 then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
-    
     str=" "
     header=" "
     if [ ${#ADDR[@]} -eq 2 ]
@@ -76,20 +71,15 @@ then
         fields=${@:2:(($#-2))}
         for field in $fields
         do
-            #echo "${field%%"="*}" 
-            #echo ${field#*"="}
             header+="${field%%"="*} "
             str+=$(grep "<${field#*"="}>" "${field%%"="*}.txt")
             str+=" "
         done
-
         echo $header
         echo $str
-    
     else
         echo 'Given Collection Not Found'
-    fi
-    
+    fi    
 fi
 
 #vt findAll <database.collection>
@@ -115,13 +105,14 @@ fi
 
 #vt delete db <dbname>
 #vt delete col <db.colname>
-
 if [ $1 == 'delete' ]
 then
     if [ $2 == 'db' ]
     then
         rm -rf $3
         echo "Database deleted"
+    else
+        echo "Database not found"
     fi
 
     if [ $2 == 'col' ]
@@ -130,7 +121,39 @@ then
         cd ${str%%"."*}
         rm -rf ${str#*"."}
         echo "Collection deleted"
+    else
+        echo "Collection not found"
     fi
 fi
 
-#vt update <db.col> <field>
+#vt update <db.col.field> set <newValue> where <oldValue>
+if [ $1 == 'update' ]
+then
+    ADDR=(${2//./ })
+    if [ ${#ADDR[@]} -eq 3 ]
+    then
+        cd ${ADDR[0]}
+        cd ${ADDR[1]}
+        targetField=${ADDR[2]}.txt
+        
+        if [[ ($3 == 'set' && $5 == 'where') ]]
+        then
+
+            oldValue=$(grep ":<$6>" "$targetField")
+            if [ ${#oldValue} -eq 0 ]
+            then
+                echo "Record not found"
+            else
+                id=${oldValue%%":"*}
+                newValue="$id:<$4>"
+                echo $newValue
+                sed -i -e "s/$oldValue/$newValue/" $targetField
+                echo "Updated"
+            fi
+        else
+            echo "Command is not correct"
+        fi
+    else
+        echo 'Given Collection Not Found'
+    fi  
+ fi
