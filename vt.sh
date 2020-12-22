@@ -70,19 +70,27 @@ then
         cd ${ADDR[1]}
         fields=${@:2:(($#-2))}
         res=" "
-        for field in $fields
-        do
-            str+=$(grep "<${field#*"="}>" "${field%%"="*}.txt")
-            break
-        done
-        res="<id>:${str%%":"*}\n"
-        for fil in $(ls)
-        do
-            val=$(grep "${str%%":"*}" "$fil")
-            res+="<${fil%%"."*}>":"${val#*":"}"
-            res+='\n'
-        done
-        printf $res
+        #for field in $fields
+        #do
+            str+=$(grep "<${2#*"="}>" "${2%%"="*}.txt")
+         #   break
+        #done
+        if [ ${#str} -ne 0 ]
+        then
+            echo $str
+            res="<id>:${str%%":"*}\n"
+            for fil in $(ls)
+            do
+                val=$(grep "${str%%":"*}" "$fil")
+                res+="<${fil%%"."*}>":"${val#*":"}"
+                res+='\n'
+            done
+            printf $res
+        else
+            echo 'Record not found'
+        fi
+        
+        
     else
         echo 'Given Collection Not Found'
     fi    
