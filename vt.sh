@@ -119,25 +119,41 @@ fi
 
 #vt delete db <dbname>
 #vt delete col <db.colname>
+#vt delete rec in <db.colname> where <field>=<value> 
 if [ $1 == 'delete' ]
 then
     if [ $2 == 'db' ]
     then
         rm -rf $3
         echo "Database deleted"
-    else
-        echo "Database not found"
-    fi
-
-    if [ $2 == 'col' ]
+    elif [ $2 == 'col' ]
     then
         str=$3
         cd ${str%%"."*}
         rm -rf ${str#*"."}
         echo "Collection deleted"
+    elif [[ $2 == 'rec' && $3 == 'in' && $5 == 'where' ]]
+    then
+        ADDR=(${4//./ })
+        cd ${ADDR[0]}
+        cd ${ADDR[1]}
+
+        str=$(grep "<${6#*"="}>" "${6%%"="*}.txt")
+        fieldID=${str%%":"*}
+
+        if [ ${#str} -ne 0 ]
+        then
+            for file in $(ls *.txt)
+            do
+                sed -i "" "/$fieldID/d" $file
+            done
+            echo "Delete succesfully"
+        else
+            echo "No record found"
+        fi
     else
-        echo "Collection not found"
-    fi
+        echo "Not valid command"
+    fi 
 fi
 
 #vt update <db.col.field> set <newValue> where <oldValue>
