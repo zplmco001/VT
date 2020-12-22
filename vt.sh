@@ -100,20 +100,19 @@ fi
 if [ $1 == 'findAll' ]
 then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
-    str=" "
     if [ ${#ADDR[@]} -eq 2 ]
     then
         cd ${ADDR[0]}
         cd ${ADDR[1]}
-        str=" "
-        for file in $(ls)
+        files=($(ls -d *.txt))
+        fil=${files[0]}
+        while read -r line
         do
-            echo ${file%%"."*}
-            echo $(cat $file)
-        done
-    
+            id=${line%%":"*}
+            echo $id
+        done < "$fil"    
     else
-        echo 'Given Collection Not Found'
+        echo '$fil'
     fi
 fi
 
