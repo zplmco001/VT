@@ -58,25 +58,31 @@ then
     fi 
 fi
 
-#vt findBy <fieldname1>=<value1> and | or <fieldname2>=<value1> ... <database.collection>
+#vt findBy <fieldname1>=<value1> <database.collection>
 if [ $1 == 'findBy' ]
 then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
-    str=" "
+    str=""
     header=" "
     if [ ${#ADDR[@]} -eq 2 ]
     then
         cd ${ADDR[0]}
         cd ${ADDR[1]}
         fields=${@:2:(($#-2))}
+        res=" "
         for field in $fields
         do
-            header+="${field%%"="*} "
             str+=$(grep "<${field#*"="}>" "${field%%"="*}.txt")
-            str+=" "
+            break
         done
-        echo $header
-        echo $str
+        res="<id>:${str%%":"*}\n"
+        for fil in $(ls)
+        do
+            val=$(grep "${str%%":"*}" "$fil")
+            res+="<${fil%%"."*}>":"${val#*":"}"
+            res+='\n'
+        done
+        printf $res
     else
         echo 'Given Collection Not Found'
     fi    
