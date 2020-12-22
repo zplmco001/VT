@@ -58,7 +58,7 @@ then
     fi 
 fi
 
-#vt findBy <fieldname1>=<value1> <database.collection>
+#vt findBy <fieldname>=<value> <database.collection>
 if [ $1 == 'findBy' ]
 then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
@@ -77,9 +77,8 @@ then
         #done
         if [ ${#str} -ne 0 ]
         then
-            echo $str
             res="<id>:${str%%":"*}\n"
-            for fil in $(ls)
+            for fil in $(ls *.txt)
             do
                 val=$(grep "${str%%":"*}" "$fil")
                 res+="<${fil%%"."*}>":"${val#*":"}"
@@ -102,6 +101,7 @@ then
     IFS='.' read -ra ADDR <<< "${@:(($#))}"
     if [ ${#ADDR[@]} -eq 2 ]
     then
+        res=""
         cd ${ADDR[0]}
         cd ${ADDR[1]}
         files=($(ls -d *.txt))
@@ -109,8 +109,17 @@ then
         while read -r line
         do
             id=${line%%":"*}
-            echo $id
-        done < "$fil"    
+            res+="<id>:${id}\n"
+            for cols in $(ls *.txt)
+            do
+                val=$(grep "${id}" "$cols")
+                res+="<${cols%%"."*}>":"${val#*":"}"
+                res+='\n'
+            done
+            res+='-------------------------------\n'
+            
+        done < "$fil"
+        printf $res    
     else
         echo '$fil'
     fi
