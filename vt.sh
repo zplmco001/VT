@@ -35,8 +35,6 @@ then
     fi
 fi
 
-
-
 #vt insert <obj> <database.collection>
 #obj json türünde ama boşluk içermeyecek ve id field ilk sırada olacak
 if [ $1 == 'insert' ]
